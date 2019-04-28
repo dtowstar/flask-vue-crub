@@ -108,14 +108,15 @@
               size="lg"
               label-checkbox-sm="left"
               name="fail_retry"
+              :disabled="isDisabled"
               switch
             >
               <b>{{form.fail_retry}}</b>
             </b-form-checkbox>
           </b-form-group>
         </b-form-group>
-        <b-button type="submit" variant="primary" :disabled="disabled">Submit</b-button>
-        <b-button type="reset" variant="danger" :disabled="disabled">Reset</b-button>
+        <b-button type="submit" variant="primary" :disabled="isDisabled">Submit</b-button>
+        <b-button type="reset" variant="danger" :disabled="isDisabled">Reset</b-button>
       </b-card>
     </b-form>
   </div>
