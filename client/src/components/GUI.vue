@@ -1,88 +1,122 @@
 <template>
-  <div style="width:80%;height:70%;margin:0px auto;;border:2px #cccccc dashed">
+  <div style="width:80%;height:70%;margin:0px auto;;border:3px #cccccc dashed">
     <b-form @submit="onSubmit" @reset="onReset" v-if="show">
       <b-card bg-variant="light">
         <b-form-group
-          label-cols-lg="3"
-          label="搶票系統"
+          label-cols-lg="4"
+          label="Tickets grapping system"
           label-size="lg"
           label-class="font-weight-bold pt-0"
           class="mb-0"
         >
           <b-form-group
             id="input-group-1"
-            label="homepage"
+            label-cols-sm="3"
+            label="入口網址："
             label-for="input-1"
-            description="設定機器人一開始開出那一個網址。"
+            label-size="lg"
+            description="請輸入演唱會購買網址並點選按鈕驗證程式是否抓取到演唱會場次(限拓元售票)"
+            label-align-sm="left"
           >
-            <b-form-input
-              id="input-1"
-              v-model="form.homepage"
-              type="text"
-              required
-              placeholder="Enter homepage"
-            ></b-form-input>
+            <b-input-group>
+              <b-form-input
+                id="input-1"
+                v-model="form.homepage"
+                type="text"
+                required
+                placeholder="Enter TixCraft concert URL"
+              ></b-form-input>
+              <b-input-group-append>
+                <b-button variant="outline-secondary">驗證網頁</b-button>
+              </b-input-group-append>
+            </b-input-group>
           </b-form-group>
-
+          <b-form-group label-cols-lg="3" label="使用者登入狀態：" label-size="xm" label-align-sm="left">
+            <b></b>
+            <b-form-checkbox
+              v-model="login"
+              size="lg"
+              label-checkbox-sm="left"
+              name="fail_retry"
+              switch
+            >
+              <b>{{login}}</b>
+            </b-form-checkbox>
+          </b-form-group>
           <b-form-group
             id="input-group-2"
-            label="ticket_number"
+            label-cols-sm="2"
+            label-align-sm="left"
+            label-size="lg"
+            label="場次："
+            description="請選擇場次(如果沒有抓到場次請重新輸入入口網址)"
             label-for="input-2"
-            description="設定票數"
           >
-            <b-form-input
+            <b-form-select
               id="input-2"
-              v-model="form.ticket_number"
+              v-model="form.ticket_session"
+              :options="session"
+              :disabled="isDisabled"
               required
-              placeholder="Enter ticket number"
-            ></b-form-input>
+            ></b-form-select>
           </b-form-group>
-
           <b-form-group
             id="input-group-3"
-            label="date_keyword"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="lg"
+            label="場域價錢："
             label-for="input-3"
-            description="設定日期的關鍵字"
+            description="設定要搶的場域的票價"
           >
             <b-form-input
               id="input-3"
-              v-model="form.date_keyword"
-              type="text"
+              v-model="form.ticket_areaPrice"
+              type="number"
               required
-              placeholder="Enter date keyword"
+              :disabled="isDisabled"
+              placeholder="請輸入票價"
             ></b-form-input>
           </b-form-group>
-
           <b-form-group
             id="input-group-4"
-            label="area_keyword"
+            label-cols-sm="2"
+            label-size="lg"
+            label-align-sm="left"
+            label="票數："
             label-for="input-4"
-            description="設定區域資訊"
+            description="設定票數"
           >
             <b-form-input
               id="input-4"
-              v-model="form.area_keyword"
-              type="text"
+              v-model="form.ticket_number"
+              type="number"
               required
-              placeholder="Enter area keyword"
+              :disabled="isDisabled"
+              placeholder="請輸入票數"
             ></b-form-input>
           </b-form-group>
+          <b-form-group
+            label-cols-lg="7"
+            label="如果搶票失敗是否由前到後繼續搶票："
+            label-size="xm"
+            label-align-sm="left"
+          >
+            <b></b>
+            <b-form-checkbox
+              v-model="form.fail_retry"
+              size="lg"
+              label-checkbox-sm="left"
+              name="fail_retry"
+              switch
+            >
+              <b>{{form.fail_retry}}</b>
+            </b-form-checkbox>
+          </b-form-group>
         </b-form-group>
+        <b-button type="submit" variant="primary" :disabled="disabled">Submit</b-button>
+        <b-button type="reset" variant="danger" :disabled="disabled">Reset</b-button>
       </b-card>
-      <!--<b-form-group id="input-group-3" label="Food:" label-for="input-3">
-        <b-form-select id="input-3" v-model="form.food" :options="foods" required></b-form-select>
-      </b-form-group>
-     
-
-      <b-form-group id="input-group-4">
-        <b-form-checkbox-group v-model="form.checked" id="checkboxes-4">
-          <b-form-checkbox value="me">Check me out</b-form-checkbox>
-          <b-form-checkbox value="that">Check that out</b-form-checkbox>
-        </b-form-checkbox-group>
-      </b-form-group>
-      -->
-      <b-button type="submit" variant="primary">Submit</b-button>
-      <b-button type="reset" variant="danger">Reset</b-button>
     </b-form>
   </div>
 </template>
@@ -93,19 +127,26 @@ export default {
     return {
       form: {
         homepage: "",
+        ticket_session: "",
+        ticket_areaPrice: "",
         ticket_number: "",
-        date_keyword: "",
-        area_keyword: ""
+        fail_retry: true
       },
-      foods: [
+      session: [
         { text: "Select One", value: null },
-        "Carrots",
-        "Beans",
-        "Tomatoes",
-        "Corn"
+        "高雄",
+        "台北",
+        "雲林",
+        "桃園"
       ],
+      login: false,
       show: true
     };
+  },
+  computed: {
+    isDisabled: function() {
+      return !this.login;
+    }
   },
   methods: {
     onSubmit(evt) {
@@ -116,12 +157,11 @@ export default {
       evt.preventDefault();
       // Reset our form values
       this.form.homepage = "";
+      this.form.ticket_session = null;
+      this.form.checked = [];
+      this.form.ticket_areaPrice = "";
       this.form.ticket_number = "";
-      this.form.date_keyword = "";
-      this.form.area_keyword = "";
-      /*this.form.food = null;
-      this.form.checked = [];*/
-      // Trick to reset/clear native browser form validation state
+      this.form.fail_retry = true;
       this.show = false;
       this.$nextTick(() => {
         this.show = true;
@@ -130,3 +170,5 @@ export default {
   }
 };
 </script>
+<style>
+</style>
