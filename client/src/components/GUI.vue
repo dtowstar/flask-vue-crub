@@ -27,7 +27,7 @@
                 placeholder="Enter TixCraft concert URL"
               ></b-form-input>
               <b-input-group-append>
-                <b-button variant="outline-secondary">驗證網頁</b-button>
+                <b-button variant="outline-secondary" type="button" v-on:click="confirmPage">驗證網頁</b-button>
               </b-input-group-append>
             </b-input-group>
           </b-form-group>
@@ -167,6 +167,22 @@ export default {
       this.$nextTick(() => {
         this.show = true;
       });
+    },
+    confirmPage: function(event) {
+      axious
+        .post("http://127.0.0.1:5000/confirmPage", {
+          homepage: this.form.homepage
+        })
+        .then(function(response) {
+          console.log(response.status);
+          // 其實是應該走後臺路由
+          if (response.status === "true") {
+            alert("成功開啟網頁");
+          }
+        })
+        .catch(function(error) {
+          alert("無法開啟網頁");
+        });
     }
   }
 };
