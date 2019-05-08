@@ -123,6 +123,7 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
@@ -169,19 +170,18 @@ export default {
       });
     },
     confirmPage: function(event) {
-      axious
-        .post("http://127.0.0.1:5000/confirmPage", {
+      axios
+        .post("http://localhost:5000/confirmPage", {
           homepage: this.form.homepage
         })
         .then(function(response) {
-          console.log(response.status);
-          // 其實是應該走後臺路由
-          if (response.status === "true") {
-            alert("成功開啟網頁");
+          console.log(response);
+          if (response.data === "true") {
+            alert("執行成功");
           }
         })
         .catch(function(error) {
-          alert("無法開啟網頁");
+          alert("執行失敗");
         });
     }
   }

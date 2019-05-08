@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-app = Flask(__name__)
-CORS(app)
+from openhome import open
+
+
 # @app.route('/', methods=['GET'])
 # def ping_pong():
 #   return jsonify("FHASDKF")  # （jsonify返回一个json格式的数据）
@@ -10,6 +11,7 @@ CORS(app)
 app = Flask(__name__,
             static_folder="./dist/static",
             template_folder="./dist")
+CORS(app)
 
 
 @app.route('/')
@@ -19,10 +21,10 @@ def index():
 
 @app.route('/confirmPage', methods=('GET', 'POST'))
 def login():
-    homepage = ''
+    homepage = request.json.get('form.homepage')
     if request.method == 'POST':
-        homepage = request.json.get('form.homepage')
         print(homepage)
+        open()
         return jsonify("true")
     else:
         return jsonify("false")
