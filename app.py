@@ -5,6 +5,7 @@ import time
 from openhome import open
 from get import getActivatyName_URL
 from get import getSessionTime
+from get_img import save_img
 
 
 # @app.route('/', methods=['GET'])
@@ -37,20 +38,27 @@ def login():
 def getActivatys():
     temp = {}
     activatyName = []
+    urlL = []
     temp = getActivatyName_URL()
     activatyName = list(temp.keys())
-    return jsonify(activatyName)
+    urlL = list(temp.values())
+    nURL = {
+        'name': activatyName,
+        'url': urlL,
+    }
+    return jsonify(nURL)
 
 
 @app.route('/useSessionTime', methods=('GET', 'POST'))
 def useSessionTime():
-    activatyN = request.json.get('activatyName')
-    temp = {}
-    temp = getActivatyName_URL()
-    getURL = temp[activatyN]
-    sessionTime = []
-    sessionTime = getSessionTime(getURL)
-    return jsonify(sessionTime)
+    gURL = request.json.get('sURL')
+    sessionTime = getSessionTime(gURL)
+    pURL = save_img(gURL)
+    sp = {
+        'rSessionTime': sessionTime,
+        'rPURL': pURL,
+    }
+    return jsonify(sp)
 
 
 if __name__ == '__main__':

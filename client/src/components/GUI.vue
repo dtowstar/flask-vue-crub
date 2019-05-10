@@ -9,6 +9,15 @@
           label-class="font-weight-bold pt-0"
           class="mb-0"
         >
+          <!--<div>
+            <b-img
+              left
+              v-bind="mainProps"
+              src="https://static.tixcraft.com/images/activity/field/19_ERIC_fd102f68892343f323b090bc9e3bbdcf.jpg"
+              alt="Left image"
+            ></b-img>
+            <b-img v-bind="mainProps" blank-color="#777" alt="HEX shorthand color image (#777)"></b-img>
+          </div>-->
           <!-- <b-form-group
             id="input-group-1"
             label-cols-sm="3"
@@ -85,6 +94,9 @@
               required
             ></b-form-input>
           </b-form-group>
+          <b-form-group id="picture">
+            <b-img-lazy class="my-5" v-bind="mainProps" :src="picture" alt="Image 1"></b-img-lazy>
+          </b-form-group>
           <b-form-group
             id="input-group-4"
             label-cols-sm="2"
@@ -133,6 +145,8 @@ export default {
   data() {
     return {
       activateName: [],
+      activateURL: [],
+      picture: "",
       form: {
         ticket_activate: "",
         ticket_session: "",
@@ -141,6 +155,15 @@ export default {
         fail_retry: true
       },
       session: [],
+      mainProps: {
+        center: true,
+        fluidGrow: true,
+        blank: true,
+        blankColor: "#bbb",
+        width: 400,
+        height: 200,
+        class: "my-5"
+      },
       show: true
     };
   },
@@ -150,7 +173,8 @@ export default {
       .then(res => {
         console.log(res);
         console.log(res.data);
-        this.activateName = res.data;
+        this.activateName = res.data.name;
+        this.activateURL = res.data.url;
       })
       .catch(error => {
         // eslint-disable-next-line
@@ -183,13 +207,17 @@ export default {
   watch: {
     "form.ticket_activate": function(value) {
       if (value != "") {
+        const index = this.activateName.indexOf(this.form.ticket_activate);
+        const uUrl = this.activateURL[index];
+        console.log(uUrl);
         axios
           .post("http://localhost:5000/useSessionTime", {
-            activatyName: this.form.ticket_activate
+            sURL: uUrl
           })
           .then(res => {
             console.log(res);
-            this.session = res.data;
+            this.session = res.data.rSessionTime;
+            this.picture = res.data.rPURL;
           })
           .catch(error => {
             alert("執行失敗");

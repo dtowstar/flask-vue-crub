@@ -6,13 +6,12 @@ import shutil
 def save_img(url):
     # url: https://tixcraft.com/activity/detail/19_ERIC'
     img_src = get_img_src(url)
-    
+
     res = requests.get(img_src, stream=True)
 
     if res.status_code == 200:
-        with open('test.jpg', "wb") as f:
-            res.raw.decode_content = True
-            shutil.copyfileobj(res.raw, f)
+        print(img_src)
+        return img_src
 
 
 def get_img_src(url):
