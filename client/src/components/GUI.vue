@@ -1,5 +1,5 @@
 <template>
-  <div style="width:80%;height:70%;margin:0px auto;;border:3px #cccccc dashed">
+  <div style="width:80%;height:70%;margin:0px auto;;border:20px #cccccc">
     <b-form @submit="onSubmit" @reset="onReset" v-if="show">
       <b-card bg-variant="light">
         <b-form-group
@@ -9,7 +9,7 @@
           label-class="font-weight-bold pt-0"
           class="mb-0"
         >
-          <b-form-group
+          <!-- <b-form-group
             id="input-group-1"
             label-cols-sm="3"
             label="入口網址："
@@ -26,9 +26,6 @@
                 required
                 placeholder="Enter TixCraft concert URL"
               ></b-form-input>
-              <b-input-group-append>
-                <b-button variant="outline-secondary" type="button" v-on:click="confirmPage">驗證網頁</b-button>
-              </b-input-group-append>
             </b-input-group>
           </b-form-group>
           <b-form-group label-cols-lg="3" label="使用者登入狀態：" label-size="xm" label-align-sm="left">
@@ -43,6 +40,23 @@
               <b>{{login}}</b>
             </b-form-checkbox>
           </b-form-group>
+          -->
+          <b-form-group
+            id="input-group-1"
+            label-cols-sm="3"
+            label-align-sm="left"
+            label-size="lg"
+            label="選擇活動："
+            description="請選擇活動(拓元售票)"
+            label-for="input-1"
+          >
+            <b-form-select
+              id="input-1"
+              v-model="form.ticket_activate"
+              :options="activateName"
+              required
+            ></b-form-select>
+          </b-form-group>
           <b-form-group
             id="input-group-2"
             label-cols-sm="2"
@@ -52,13 +66,7 @@
             description="請選擇場次(如果沒有抓到場次請重新輸入入口網址)"
             label-for="input-2"
           >
-            <b-form-select
-              id="input-2"
-              v-model="form.ticket_session"
-              :options="session"
-              :disabled="isDisabled"
-              required
-            ></b-form-select>
+            <b-form-select id="input-2" v-model="form.ticket_session" :options="session" required></b-form-select>
           </b-form-group>
           <b-form-group
             id="input-group-3"
@@ -73,9 +81,8 @@
               id="input-3"
               v-model="form.ticket_areaPrice"
               type="number"
-              required
-              :disabled="isDisabled"
               placeholder="請輸入票價"
+              required
             ></b-form-input>
           </b-form-group>
           <b-form-group
@@ -91,9 +98,8 @@
               id="input-4"
               v-model="form.ticket_number"
               type="number"
-              required
-              :disabled="isDisabled"
               placeholder="請輸入票數"
+              required
             ></b-form-input>
           </b-form-group>
           <b-form-group
@@ -108,15 +114,14 @@
               size="lg"
               label-checkbox-sm="left"
               name="fail_retry"
-              :disabled="isDisabled"
               switch
             >
               <b>{{form.fail_retry}}</b>
             </b-form-checkbox>
           </b-form-group>
         </b-form-group>
-        <b-button type="submit" variant="primary" :disabled="isDisabled">Submit</b-button>
-        <b-button type="reset" variant="danger" :disabled="isDisabled">Reset</b-button>
+        <b-button type="submit" variant="primary">Submit</b-button>
+        <b-button type="reset" variant="danger">Reset</b-button>
       </b-card>
     </b-form>
   </div>
@@ -127,23 +132,30 @@ import axios from "axios";
 export default {
   data() {
     return {
+      activateName: [],
       form: {
-        homepage: "",
+        ticket_activate: "",
         ticket_session: "",
         ticket_areaPrice: "",
         ticket_number: "",
         fail_retry: true
       },
-      session: [
-        { text: "Select One", value: null },
-        "高雄",
-        "台北",
-        "雲林",
-        "桃園"
-      ],
-      login: false,
+      session: [],
       show: true
     };
+  },
+  created: function() {
+    axios
+      .get("http://localhost:5000/getActivatyName_URL")
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+        this.activateName = res.data;
+      })
+      .catch(error => {
+        // eslint-disable-next-line
+        console.error(error);
+      });
   },
   computed: {
     isDisabled: function() {
@@ -157,10 +169,8 @@ export default {
     },
     onReset(evt) {
       evt.preventDefault();
-      // Reset our form values
-      this.form.homepage = "";
+      this.form.ticket_activate = "";
       this.form.ticket_session = null;
-      this.form.checked = [];
       this.form.ticket_areaPrice = "";
       this.form.ticket_number = "";
       this.form.fail_retry = true;
@@ -168,21 +178,23 @@ export default {
       this.$nextTick(() => {
         this.show = true;
       });
-    },
-    confirmPage: function(event) {
-      axios
-        .post("http://localhost:5000/confirmPage", {
-          homepage: this.form.homepage
-        })
-        .then(function(response) {
-          console.log(response);
-          if (response.data === "true") {
-            alert("執行成功");
-          }
-        })
-        .catch(function(error) {
-          alert("執行失敗");
-        });
+    }
+  },
+  watch: {
+    "form.ticket_activate": function(value) {
+      if (value != "") {
+        axios
+          .post("http://localhost:5000/useSessionTime", {
+            activatyName: this.form.ticket_activate
+          })
+          .then(res => {
+            console.log(res);
+            this.session = res.data;
+          })
+          .catch(error => {
+            alert("執行失敗");
+          });
+      }
     }
   }
 };
