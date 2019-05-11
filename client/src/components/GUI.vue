@@ -72,10 +72,21 @@
             label-align-sm="left"
             label-size="lg"
             label="場次："
-            description="請選擇場次(如果沒有抓到場次請重新輸入入口網址)"
+            description="請先選擇活動(會自動抓取場次)"
             label-for="input-2"
           >
-            <b-form-select id="input-2" v-model="form.ticket_session" :options="session" required></b-form-select>
+            <div v-if="isShow">
+              <b-form-select
+                v-if="isShow"
+                id="input-2"
+                v-model="form.ticket_session"
+                :options="session"
+                required
+              ></b-form-select>
+            </div>
+            <div v-else>
+              <b-spinner variant="primary" label="Text Centered"></b-spinner>
+            </div>
           </b-form-group>
           <b-form-group
             id="input-group-3"
@@ -95,7 +106,13 @@
             ></b-form-input>
           </b-form-group>
           <b-form-group id="picture">
-            <b-img-lazy class="my-5" v-bind="mainProps" :src="picture" alt="Image 1"></b-img-lazy>
+            <div v-if="isShow">
+              <b-img-lazy class="my-5" v-bind="mainProps" :src="picture" alt="場域圖"></b-img-lazy>
+            </div>
+            <div v-else>
+              <strong style="text-align:left;">請先選擇活動..</strong>
+              <b-spinner variant="primary" type="grow" label="Text Centered"></b-spinner>
+            </div>
           </b-form-group>
           <b-form-group
             id="input-group-4"
@@ -145,6 +162,7 @@ export default {
   data() {
     return {
       activateName: [],
+      isShow: false,
       activateURL: [],
       picture: "",
       form: {
@@ -193,6 +211,7 @@ export default {
     },
     onReset(evt) {
       evt.preventDefault();
+      this.isShow = false;
       this.form.ticket_activate = "";
       this.form.ticket_session = null;
       this.form.ticket_areaPrice = "";
@@ -209,6 +228,7 @@ export default {
       if (value != "") {
         const index = this.activateName.indexOf(this.form.ticket_activate);
         const uUrl = this.activateURL[index];
+        this.isShow = false;
         console.log(uUrl);
         axios
           .post("http://localhost:5000/useSessionTime", {
@@ -216,6 +236,9 @@ export default {
           })
           .then(res => {
             console.log(res);
+            if (res.data != null) {
+              this.isShow = true;
+            }
             this.session = res.data.rSessionTime;
             this.picture = res.data.rPURL;
           })
