@@ -23,4 +23,4 @@ def get_img_src(url):
     return img_src
 
 
-save_img('https://tixcraft.com/activity/detail/19_ERIC')
+# save_img('https://tixcraft.com/activity/detail/19_ERIC')

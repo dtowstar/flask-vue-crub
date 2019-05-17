@@ -20,7 +20,17 @@ def getSessionTime(getHref):
     tr_tags = soup.find_all(class_='gridc fcTxt')
     times = [tr.td.string for tr in tr_tags]
 
-    return times
+    tr_tags = soup.find_all('td', class_='gridc')
+
+    status = []
+    for tr_tag in tr_tags:
+        tr_tag = str(tr_tag)
+        if '已售完' in tr_tag or '選購一空' in tr_tag:
+            status.append(True)
+        else:
+            status.append(False)
+
+    return times, status
 
 
 # In[59]:
@@ -58,3 +68,6 @@ def getActivatyName_URL():
     # activities = {'activities': activities}
 
     return activities
+
+
+# getSessionTime('https://tixcraft.com/activity/detail/19_JackyWu')

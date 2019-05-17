@@ -77,10 +77,9 @@
           >
             <div v-if="isShow">
               <b-form-select
-                v-if="isShow"
                 id="input-2"
+                :options="combineSS"
                 v-model="form.ticket_session"
-                :options="session"
                 required
               ></b-form-select>
             </div>
@@ -148,6 +147,10 @@
               <b>{{form.fail_retry}}</b>
             </b-form-checkbox>
           </b-form-group>
+          <div v-if="disable">
+            <b-form-input id="input-n" v-model="form.session_index" disabled="false"></b-form-input>
+            <b-form-input id="input-urln" v-model="form.activate_URL" disabled="false"></b-form-input>
+          </div>
         </b-form-group>
         <b-button type="submit" variant="primary">Submit</b-button>
         <b-button type="reset" variant="danger">Reset</b-button>
@@ -165,14 +168,21 @@ export default {
       isShow: false,
       activateURL: [],
       picture: "",
+      session: [],
+      si: "",
+      status: [],
+      combineSS: [],
+      disable: false,
+      list: "",
       form: {
         ticket_activate: "",
         ticket_session: "",
+        session_index: "",
+        activate_URL: "",
         ticket_areaPrice: "",
         ticket_number: "",
         fail_retry: true
       },
-      session: [],
       mainProps: {
         center: true,
         fluidGrow: true,
@@ -207,7 +217,17 @@ export default {
   methods: {
     onSubmit(evt) {
       evt.preventDefault();
-      alert(JSON.stringify(this.form));
+      axios
+        .post("http://localhost:5000/getForm", {
+          sform: JSON.stringify(this.form)
+        })
+        .then(res => {
+          console.log(res);
+        })
+        .catch(error => {
+          alert("執行失敗");
+        });
+      //alert(JSON.stringify(this.form));
     },
     onReset(evt) {
       evt.preventDefault();
@@ -221,6 +241,12 @@ export default {
       this.$nextTick(() => {
         this.show = true;
       });
+    },
+    gstatus() {
+      for (var i in this.status) {
+        const x = this.status[i];
+        return x;
+      }
     }
   },
   watch: {
@@ -228,6 +254,7 @@ export default {
       if (value != "") {
         const index = this.activateName.indexOf(this.form.ticket_activate);
         const uUrl = this.activateURL[index];
+        this.form.activate_URL = uUrl;
         this.isShow = false;
         console.log(uUrl);
         axios
@@ -241,11 +268,29 @@ export default {
             }
             this.session = res.data.rSessionTime;
             this.picture = res.data.rPURL;
+            this.status = res.data.rstatus;
+            this.combineSS = [];
+            for (var i = 0; i < this.session.length; i++) {
+              var activeSubjectsObject = {};
+              for (var j = 0; j < this.status.length; j++) {
+                if (i == j) {
+                  activeSubjectsObject.value = this.session[i];
+                  activeSubjectsObject.text = this.session[i];
+                  activeSubjectsObject.disabled = this.status[j];
+                  this.combineSS.push(activeSubjectsObject);
+                }
+              }
+            }
+            console.log(this.combineSS);
           })
           .catch(error => {
             alert("執行失敗");
           });
       }
+    },
+    "form.ticket_session": function(value) {
+      this.si = this.session.indexOf(this.form.ticket_session);
+      this.form.session_index = this.si;
     }
   }
 };
