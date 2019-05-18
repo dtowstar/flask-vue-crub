@@ -8,10 +8,6 @@ from get import getSessionTime
 from get_img import save_img
 from newTicket import runTicketP
 
-# @app.route('/', methods=['GET'])
-# def ping_pong():
-#   return jsonify("FHASDKF")  # （jsonify返回一个json格式的数据）
-
 app = Flask(__name__,
             static_folder="./dist/static",
             template_folder="./dist")
