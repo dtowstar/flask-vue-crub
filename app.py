@@ -7,6 +7,7 @@ from get import getActivatyName_URL
 from get import getSessionTime
 from get_img import save_img
 from newTicket import runTicketP
+from tixcraft.core import TixCraft
 
 # @app.route('/', methods=['GET'])
 # def ping_pong():
@@ -79,6 +80,8 @@ def runProgram():
     print(gTN)
     print(gSI)
     runTicketP(gAURL, gSI, gTPrice, gTN)
+    # tixcraft = TixCraft(gAURL, ticket_number=gTN, area_price=gTPrice, activity_index=gSI)
+    # tixcraft.run()
     print("iswork")
     return 'True'
 
