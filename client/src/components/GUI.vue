@@ -106,7 +106,7 @@
           </b-form-group>
           <b-form-group id="picture">
             <div v-if="isShow">
-              <b-img-lazy class="my-5" v-bind="mainProps" :src="picture" alt="場域圖"></b-img-lazy>
+              <b-img-lazy class="my-5" v-bind="mainProps" :src="picture" alt="沒找到場域圖(或沒有圖片)"></b-img-lazy>
             </div>
             <div v-else>
               <strong style="text-align:left;">請先選擇活動..</strong>

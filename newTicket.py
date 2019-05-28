@@ -12,9 +12,26 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
+from urllib import request
 import requests
 import re
 import random
+
+global clickb
+clickb = False
+
+
+def repeatclick(ses, driver):
+    try:
+        WebDriverWait(driver, 0.5).until(EC.element_to_be_clickable(
+            (By.XPATH, "//*[contains(text(), '立即購票')]"))).click()
+        driver.implicitly_wait(1)
+        element = driver.find_element_by_xpath(
+            "//*[@id='gameList']/table[1]/tbody[1]/tr["+str(ses)+"]/td[4]/input[1]").click()
+        global clickb
+        clickb = True
+    except:
+        print("except")
 
 
 def runTicketP(iurl, isessionIndex, iprice, iTN):
@@ -28,15 +45,12 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     securl = iurl
     driver.get(securl)
 
-    # 立即購票
-    WebDriverWait(driver, 600).until(EC.element_to_be_clickable(
-        (By.XPATH, "//*[contains(text(), '立即購票')]"))).click()
-
     ses = int(isessionIndex)+1
-    # 立即訂購
-    WebDriverWait(driver, 600).until(EC.element_to_be_clickable(
-        (By.XPATH, "//*[@id='gameList']/table[1]/tbody[1]/tr["+str(ses)+"]/td[4]/input[1]"))).click()
 
+    while(clickb == False):
+        repeatclick(ses, driver)
+
+    print("pass")
     curl = driver.current_url
     if curl[21:34] == 'ticket/verify':
         restv = driver.page_source
@@ -58,7 +72,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
         sp1 = sp.find_all('div', {"class": "zone area-list"})
         sp2 = [s.find_all('a') for s in sp1]
         sp3 = [s.text[1:].split()[0] for s in sp2[0]]
-
+        print("inarea")
         sp4 = []
         for s in sp3:
             if pl in s:
