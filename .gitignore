@@ -1,0 +1,10 @@
+__pycache__/
+venv/
+.ipynb_checkpoints
+*.ipynb
+debug.log
+
+node_modules
+
+captcha.png
+session.json
