@@ -68,6 +68,7 @@ class TixCraft:
         return url
 
     def activity_game(self, source_code):
+        # r.txt
         html = etree.HTML(source_code)
         urls = html.xpath('//td[@class="gridc"]/input/@data-href')
         try:
@@ -82,7 +83,8 @@ class TixCraft:
         CSRFTOKEN = parser.CSRFTOKEN(html)
         checkCode = parser.checkcode(html)
 
-        data = {"CSRFTOKEN": CSRFTOKEN, "checkCode": checkCode, "confirmed": "true"}
+        data = {"CSRFTOKEN": CSRFTOKEN,
+                "checkCode": checkCode, "confirmed": "true"}
         url = parser.checkcode_url(source_code)
         r = session.post(url, data=data)
         url = parser.json_url(r.text)

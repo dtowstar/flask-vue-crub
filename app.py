@@ -7,6 +7,7 @@ from get import getActivatyName_URL
 from get import getSessionTime
 from get_img import save_img
 from newTicket import runTicketP
+from tixcraft.core import TixCraft
 
 app = Flask(__name__,
             static_folder="./dist/static",
@@ -62,20 +63,31 @@ def useSessionTime():
 def runProgram():
     gobject = request.json.get('sform')
     ret_dict = json.loads(gobject)
-    print(gobject)
-    print(type(gobject))
-    print(ret_dict)
-    print(type(ret_dict))
     gAURL = ret_dict['activate_URL']
     gTPrice = ret_dict['ticket_areaPrice']
     gTN = int(ret_dict['ticket_number'])
     gSI = ret_dict['session_index']
+    gTAName = ret_dict['ticket_areaName']
+    gTR = ret_dict['ticket_rule']
+    gSorR = ret_dict['SorR']
     print(gAURL)
     print(gTPrice)
     print(gTN)
     print(gSI)
-    runTicketP(gAURL, gSI, gTPrice, gTN)
-    print("iswork")
+    print(gTAName)
+    print(gTR)
+    print(gSorR)
+    sTR = ""
+    if(gTR == True):
+        sTR = "HIGHEST_PRICE"
+    else:
+        sTR = "LOWEST_PRICE"
+    if(gSorR == False):
+        runTicketP(gAURL, gSI, gTPrice, gTN)
+    else:
+        tixcraft = TixCraft(gAURL, ticket_number=gTN, area_price=gTPrice,
+                            activity_index=gSI, area_name=gTAName, rule=sTR)
+        tixcraft.run()
     return 'True'
 
 
