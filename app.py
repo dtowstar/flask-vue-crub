@@ -3,11 +3,11 @@ from flask_cors import CORS
 from selenium import webdriver
 import time
 #from openhome import open
-from get import getActivatyName_URL
-from get import getSessionTime
 from get_img import save_img
 from newTicket import runTicketP
 from tixcraft.core import TixCraft
+from tixcraft.driver import login
+from tixcraft import parser
 
 app = Flask(__name__,
             static_folder="./dist/static",
@@ -36,7 +36,7 @@ def getActivatys():
     temp = {}
     activatyName = []
     urlL = []
-    temp = getActivatyName_URL()
+    temp = parser.all_activaties_url()
     activatyName = list(temp.keys())
     urlL = list(temp.values())
     nURL = {
@@ -49,12 +49,12 @@ def getActivatys():
 @app.route('/useSessionTime', methods=('GET', 'POST'))
 def useSessionTime():
     gURL = request.json.get('sURL')
-    sessionTime, status = getSessionTime(gURL)
+    sessionTime, statuses = parser.events(gURL)
     pURL = save_img(gURL)
     sp = {
         'rSessionTime': sessionTime,
         'rPURL': pURL,
-        'rstatus': status
+        'rstatus': [not status for status in statuses]
     }
     return jsonify(sp)
 
@@ -85,7 +85,9 @@ def runProgram():
     if(gSorR == False):
         runTicketP(gAURL, gSI, gTPrice, gTN)
     else:
-        tixcraft = TixCraft(gAURL, ticket_number=gTN, area_price=gTPrice,
+        driver = webdriver.Chrome()
+        cookies = login(driver)
+        tixcraft = TixCraft(gAURL, cookies, ticket_number=gTN, area_price=gTPrice,
                             activity_index=gSI, area_name=gTAName, rule=sTR)
         tixcraft.run()
     return 'True'
