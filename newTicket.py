@@ -42,6 +42,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     driver.get(url)
     element = WebDriverWait(driver, 600).until(
         EC.visibility_of_element_located((By.XPATH, "//*[@class='user-name']")))
+
     securl = iurl
     driver.get(securl)
 
@@ -60,12 +61,15 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
             restv = driver.page_source
             sptv = BeautifulSoup(restv)
             sptv1 = sptv.find('font').text
-            driver.find_element_by_id("checkCode").clear()
-            driver.find_element_by_id("checkCode").send_keys(""+sptv1+"")
-            driver.find_element_by_id("submitButton").click()
-            WebDriverWait(driver, 5).until(EC.alert_is_present())
-            alert = driver.switch_to_alert()
-            alert.accept()
+            if(sptv1 != None):
+                driver.find_element_by_id("checkCode").clear()
+                driver.find_element_by_id("checkCode").send_keys(""+sptv1+"")
+                driver.find_element_by_id("submitButton").click()
+                WebDriverWait(driver, 5).until(EC.alert_is_present())
+                alert = driver.switch_to_alert()
+                alert.accept()
+            else:
+                continue
 
         curl = driver.current_url
         if curl[21:32] == 'ticket/area':
@@ -162,6 +166,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     driver.get(securl)
     '''
 
-    runTicketP('https://tixcraft.com/activity/detail/19_Aimer', '2', '1200', 2)
+
+#runTicketP('https://tixcraft.com/activity/detail/19_Aimer', '0', '1200', 2)
 
 # In[ ]:
