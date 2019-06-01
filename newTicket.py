@@ -17,19 +17,14 @@ import requests
 import re
 import random
 
-global clickb
-clickb = False
-
 
 def repeatclick(ses, driver):
     try:
         WebDriverWait(driver, 0.5).until(EC.element_to_be_clickable(
-            (By.XPATH, "//*[contains(text(), '立即購票')]"))).click()
+            (By.XPATH, "//*[contains(text(), '立即購票')] | //*[contains(text(), '立即索票')]"))).click()
         driver.implicitly_wait(1)
         element = driver.find_element_by_xpath(
             "//*[@id='gameList']/table[1]/tbody[1]/tr["+str(ses)+"]/td[4]/input[1]").click()
-        global clickb
-        clickb = True
     except:
         print("except")
 
@@ -60,7 +55,11 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
         if curl[21:34] == 'ticket/verify':
             restv = driver.page_source
             sptv = BeautifulSoup(restv)
-            sptv1 = sptv.find('font').text
+            try:
+                sptv1 = sptv.find('font').text
+            except:
+                sptv1 = None
+                print("no front")
             if(sptv1 != None):
                 driver.find_element_by_id("checkCode").clear()
                 driver.find_element_by_id("checkCode").send_keys(""+sptv1+"")
@@ -113,7 +112,6 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
                 inTicketN += 1
                 WebDriverWait(driver, 600).until(EC.element_to_be_clickable(
                     (By.XPATH, "//*[@id='TicketForm_agree']"))).click()
-                # driver.find_element_by_xpath("//*[@id='TicketForm_agree']").click()
 
                 res1 = driver.page_source
                 data1 = BeautifulSoup(res1)

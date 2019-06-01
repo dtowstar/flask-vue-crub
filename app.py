@@ -55,6 +55,7 @@ def useSessionTime():
         'rSessionTime': sessionTime,
         'rPURL': pURL,
         'rstatus': [not status for status in statuses]
+
     }
     return jsonify(sp)
 
