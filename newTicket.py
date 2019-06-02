@@ -29,6 +29,31 @@ def repeatclick(ses, driver):
         print("except")
 
 
+def ticketTicket(tv, driver):
+
+    WebDriverWait(driver, 60).until(EC.element_to_be_clickable(
+        (By.XPATH, "//*[@id='TicketForm_agree']"))).click()
+    res1 = driver.page_source
+    data1 = BeautifulSoup(res1)
+    for match in data1.find_all('select', id=re.compile("TicketForm_ticketPrice")):
+        Tt = match.get('id')
+
+    # 選擇購買票數
+    tvarr = []
+    s1 = Select(driver.find_element_by_xpath(
+        "//*[@id='"+str(Tt)+"']"))
+
+    for select in s1.options:
+        tvarr.append(int(select.text))
+    while True:
+        if tv in tvarr:
+            s1.select_by_index(tv)
+            break
+        else:
+            tv = tv-1
+            continue
+
+
 def runTicketP(iurl, isessionIndex, iprice, iTN):
     driver = webdriver.Chrome()
     driver.maximize_window()
@@ -53,9 +78,9 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     while(curl[21:35] != 'ticket/payment'):
 
         if curl[21:34] == 'ticket/verify':
-            restv = driver.page_source
-            sptv = BeautifulSoup(restv)
             try:
+                restv = driver.page_source
+                sptv = BeautifulSoup(restv)
                 sptv1 = sptv.find('font').text
             except:
                 sptv1 = None
@@ -68,6 +93,14 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
                 alert = driver.switch_to_alert()
                 alert.accept()
             else:
+                print("wait user")
+                try:
+                    WebDriverWait(driver, 2).until(EC.alert_is_present())
+                    alert = driver.switch_to_alert()
+                    alert.accept()
+                    ticketTicket(iTN, driver)
+                except:
+                    print("no alert")
                 continue
 
         curl = driver.current_url
@@ -110,31 +143,18 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
         elif(curl[21:34] == 'ticket/ticket'):
             if(inAreaN > inTicketN):
                 inTicketN += 1
-                WebDriverWait(driver, 600).until(EC.element_to_be_clickable(
-                    (By.XPATH, "//*[@id='TicketForm_agree']"))).click()
+                ticketTicket(iTN, driver)
 
-                res1 = driver.page_source
-                data1 = BeautifulSoup(res1)
-                for match in data1.find_all('select', id=re.compile("TicketForm_ticketPrice")):
-                    Tt = match.get('id')
-
-                # 選擇購買票數
-                tv = iTN
-                tvarr = []
-                s1 = Select(driver.find_element_by_xpath(
-                    "//*[@id='"+str(Tt)+"']"))  # 实例化Select
-
-                for select in s1.options:
-                    tvarr.append(int(select.text))
-                while True:
-                    if tv in tvarr:
-                        s1.select_by_index(tv)
-                        break
-                    else:
-                        tv = tv-1
-                        continue
             else:
                 print("wait user")
+                try:
+                    WebDriverWait(driver, 3).until(EC.alert_is_present())
+                    alert = driver.switch_to_alert()
+                    alert.accept()
+                    ticketTicket(iTN, driver)
+                except:
+                    print("no alert")
+
                 continue
 
     # In[ ]:
@@ -165,6 +185,6 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     '''
 
 
-#runTicketP('https://tixcraft.com/activity/detail/19_Aimer', '0', '1200', 2)
+runTicketP('https://tixcraft.com/activity/detail/19_ELLA', '0', '1200', 1)
 
 # In[ ]:

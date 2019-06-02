@@ -75,7 +75,8 @@ class TixCraft:
         CSRFTOKEN = parser.CSRFTOKEN(html)
         checkCode = parser.checkcode(html)
 
-        data = {"CSRFTOKEN": CSRFTOKEN, "checkCode": checkCode, "confirmed": "true"}
+        data = {"CSRFTOKEN": CSRFTOKEN,
+                "checkCode": checkCode, "confirmed": "true"}
         url = parser.checkcode_url(source_code)
         r = self.session.post(url, data=data)
         url = parser.json_url(r.text)
@@ -97,7 +98,8 @@ class TixCraft:
         return "https://tixcraft.com" + url
 
     def show_captcha(self):
-        r = self.session.get("https://tixcraft.com/ticket/captcha", stream=True)
+        r = self.session.get(
+            "https://tixcraft.com/ticket/captcha", stream=True)
         if r.status_code == 200:
             with open("captcha.png", "wb") as f:
                 r.raw.decode_content = True
