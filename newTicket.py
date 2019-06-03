@@ -30,7 +30,7 @@ def repeatclick(ses, driver):
 
 
 def ticketTicket(tv, driver):
-
+    driver.implicitly_wait(2)
     WebDriverWait(driver, 60).until(EC.element_to_be_clickable(
         (By.XPATH, "//*[@id='TicketForm_agree']"))).click()
     res1 = driver.page_source
@@ -59,6 +59,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     driver.maximize_window()
     driver.implicitly_wait(20)
     url = 'https://tixcraft.com/login'
+    urlTemp = ""
     driver.get(url)
     element = WebDriverWait(driver, 600).until(
         EC.visibility_of_element_located((By.XPATH, "//*[@class='user-name']")))
@@ -71,6 +72,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     while(curl[21:36] == 'activity/detail'):
         repeatclick(ses, driver)
         curl = driver.current_url
+        urlTemp = curl
 
     print("pass")
     inAreaN = 0
@@ -102,8 +104,12 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
                 except:
                     print("no alert")
                 continue
-
-        curl = driver.current_url
+        try:
+            curl = driver.current_url
+            urlTemp = curl
+        except:
+            print("alert block")
+            curl = urlTemp
         if curl[21:32] == 'ticket/area':
             inAreaN += 1
             res = driver.page_source
@@ -121,7 +127,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
             if len(sp4) != 0:
                 rc = random.choice(sp4)
 
-                element = WebDriverWait(driver, 600).until(EC.visibility_of_element_located(
+                element = WebDriverWait(driver, 60).until(EC.visibility_of_element_located(
                     (By.XPATH, "//*[contains(text(), '"+str(rc)+"')]")))
                 etext = element.find_element_by_xpath("..").text
                 if ('剩餘' in etext) or ('熱賣中' in etext):
@@ -136,7 +142,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
                     list.append(match.get('id'))
                 rs = random.choice(list)
                 # 選區域(價格)(隨機)
-                WebDriverWait(driver, 600).until(
+                WebDriverWait(driver, 60).until(
                     EC.element_to_be_clickable((By.ID, ""+rs+""))).click()
                 curl = driver.current_url
 
@@ -148,7 +154,7 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
             else:
                 print("wait user")
                 try:
-                    WebDriverWait(driver, 3).until(EC.alert_is_present())
+                    WebDriverWait(driver, 2).until(EC.alert_is_present())
                     alert = driver.switch_to_alert()
                     alert.accept()
                     ticketTicket(iTN, driver)
@@ -185,6 +191,6 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     '''
 
 
-runTicketP('https://tixcraft.com/activity/detail/19_ELLA', '0', '1200', 1)
+#runTicketP('https://tixcraft.com/activity/detail/19_911', '0', '3800', 1)
 
 # In[ ]:
