@@ -88,7 +88,7 @@ def runProgram():
     else:
         driver = webdriver.Chrome()
         cookies = login(driver)
-        tixcraft = TixCraft(gAURL, cookies, ticket_number=gTN, area_price=gTPrice,
+        tixcraft = TixCraft(gAURL, driver, cookies, ticket_number=gTN, area_price=gTPrice,
                             activity_index=gSI, area_name=gTAName, rule=sTR)
         tixcraft.run()
     return 'True'
