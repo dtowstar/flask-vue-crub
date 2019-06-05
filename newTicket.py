@@ -30,7 +30,6 @@ def repeatclick(ses, driver):
 
 
 def ticketTicket(tv, driver):
-    driver.implicitly_wait(2)
     WebDriverWait(driver, 60).until(EC.element_to_be_clickable(
         (By.XPATH, "//*[@id='TicketForm_agree']"))).click()
     res1 = driver.page_source
@@ -191,6 +190,6 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
     '''
 
 
-#runTicketP('https://tixcraft.com/activity/detail/19_911', '0', '3800', 1)
+runTicketP('https://tixcraft.com/activity/detail/19_911', '0', '3800', 1)
 
 # In[ ]:
