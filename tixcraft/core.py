@@ -4,8 +4,9 @@ from time import sleep
 import requests
 import shutil
 import json
-from tixcraft import parser
 from tixcraft.picker import AreaPicker
+from tixcraft.verify import Verifier
+from tixcraft import parser
 
 
 class NoLoggingError(RuntimeError):
@@ -13,6 +14,10 @@ class NoLoggingError(RuntimeError):
 
 
 class ActivityIndexError(RuntimeError):
+    pass
+
+
+class SoldOutError(RuntimeError):
     pass
 
 
@@ -25,8 +30,9 @@ class UndefinedUrlError(RuntimeError):
 
 
 class TixCraft:
-    def __init__(self, activity_url, cookies, **setting):
+    def __init__(self, activity_url, driver, cookies, **setting):
         self.ACTIVITY_URL = activity_url
+        self.driver = driver
         self.ACTIVITY_INDEX = setting.get("activity_index", 0)
         self.TICKET_NUMBER = setting.get("ticket_number", 1)
         self.AREA_NAME = setting.get("area_name", "")
@@ -60,31 +66,30 @@ class TixCraft:
         url = url.replace("detail", "game")
         return url
 
-    def activity_game(self, source_code):
+    def activity_game(self, url, source_code):
         html = etree.HTML(source_code)
-        urls = html.xpath('//td[@class="gridc"]/input/@data-href')
         try:
-            url = urls[self.ACTIVITY_INDEX]
+            td = html.xpath('//td[@class="gridc"]')[self.ACTIVITY_INDEX]
         except IndexError:
             raise ActivityIndexError("活動場次索引不存在")
 
-        return "https://tixcraft.com" + url
+        status = etree.tostring(td, encoding="unicode")
+        if "已售完" in status or "選購一空" in status:
+            raise SoldOutError("活動場次已售完")
+        elif "立即訂購" in status:
+            url = td.xpath("input/@data-href")[0]
+            url = "https://tixcraft.com" + url
+        elif "剩餘" in status:
+            pass
 
-    def ticket_verify(self, source_code):
-        html = etree.HTML(source_code)
-        CSRFTOKEN = parser.CSRFTOKEN(html)
-        checkCode = parser.checkcode(html)
+        return url
 
-        data = {"CSRFTOKEN": CSRFTOKEN,
-                "checkCode": checkCode, "confirmed": "true"}
-        url = parser.checkcode_url(source_code)
-        r = self.session.post(url, data=data)
-        url = parser.json_url(r.text)
-
-        return "https://tixcraft.com" + url
+    def ticket_verify(self, url, source_code):
+        verifier = Verifier(self.session, source_code)
+        url = verifier.run(self.driver, url)
+        return url
 
     def ticket_area(self, source_code, rule="highest"):
-
         areas, price_status = parser.areas(source_code)
         areaUrlList = parser.areaUrlList(source_code)
 
@@ -98,8 +103,7 @@ class TixCraft:
         return "https://tixcraft.com" + url
 
     def show_captcha(self):
-        r = self.session.get(
-            "https://tixcraft.com/ticket/captcha", stream=True)
+        r = self.session.get("https://tixcraft.com/ticket/captcha", stream=True)
         if r.status_code == 200:
             with open("captcha.png", "wb") as f:
                 r.raw.decode_content = True
@@ -110,14 +114,13 @@ class TixCraft:
 
     def ticket_ticket(self, url, source_code):
         self.show_captcha()
-        html = etree.HTML(source_code)
-        CSRFTOKEN = parser.CSRFTOKEN(html)
-        ticketPrice = parser.ticketPrice(html)
+        CSRFTOKEN = parser.CSRFTOKEN(source_code)
+        ticketPrice = parser.ticketPrice(source_code)
         verifyCode = input("請輸入驗證碼: ")
         agree = parser.agree(source_code)
 
         ticket_number = self.TICKET_NUMBER
-        optional_number = parser.optional_number(html)
+        optional_number = parser.optional_number(source_code)
 
         if ticket_number > optional_number:
             ticket_number = optional_number
@@ -168,9 +171,9 @@ class TixCraft:
         if "activity/detail" in url:
             url = self.activity_detail(url)
         elif "activity/game" in url:
-            url = self.activity_game(source_code)
+            url = self.activity_game(url, source_code)
         elif "ticket/verify" in url:
-            url = self.ticket_verify(source_code)
+            url = self.ticket_verify(url, source_code)
         elif "ticket/area" in url:
             url = self.ticket_area(source_code)
         elif "ticket/ticket" in url:

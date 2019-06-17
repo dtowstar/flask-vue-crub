@@ -9,47 +9,6 @@
           label-class="font-weight-bold pt-0"
           class="mb-0"
         >
-          <!--<div>
-            <b-img
-              left
-              v-bind="mainProps"
-              src="https://static.tixcraft.com/images/activity/field/19_ERIC_fd102f68892343f323b090bc9e3bbdcf.jpg"
-              alt="Left image"
-            ></b-img>
-            <b-img v-bind="mainProps" blank-color="#777" alt="HEX shorthand color image (#777)"></b-img>
-          </div>-->
-          <!-- <b-form-group
-            id="input-group-1"
-            label-cols-sm="3"
-            label="入口網址："
-            label-for="input-1"
-            label-size="lg"
-            description="請輸入演唱會購買網址並點選按鈕驗證程式是否抓取到演唱會場次(限拓元售票)"
-            label-align-sm="left"
-          >
-            <b-input-group>
-              <b-form-input
-                id="input-1"
-                v-model="form.homepage"
-                type="text"
-                required
-                placeholder="Enter TixCraft concert URL"
-              ></b-form-input>
-            </b-input-group>
-          </b-form-group>
-          <b-form-group label-cols-lg="3" label="使用者登入狀態：" label-size="xm" label-align-sm="left">
-            <b></b>
-            <b-form-checkbox
-              v-model="login"
-              size="lg"
-              label-checkbox-sm="left"
-              name="fail_retry"
-              switch
-            >
-              <b>{{login}}</b>
-            </b-form-checkbox>
-          </b-form-group>
-          -->
           <b-form-group
             id="input-group-1"
             label-cols-sm="3"
@@ -72,7 +31,6 @@
             label-align-sm="left"
             label-size="lg"
             label="場次："
-            description="請先選擇活動(會自動抓取場次)"
             label-for="input-2"
           >
             <div v-if="isShow">
@@ -84,6 +42,15 @@
               ></b-form-select>
             </div>
             <div v-else>
+              <b-spinner variant="primary" label="Text Centered"></b-spinner>
+            </div>
+          </b-form-group>
+          <b-form-group id="picture">
+            <div v-if="isShow">
+              <b-img-lazy class="my-5" v-bind="mainProps" :src="picture" alt="沒找到場域圖(或沒有圖片)"></b-img-lazy>
+            </div>
+            <div v-else>
+              <strong style="text-align:left;">請先選擇活動..</strong>
               <b-spinner variant="primary" label="Text Centered"></b-spinner>
             </div>
           </b-form-group>
@@ -104,15 +71,7 @@
               required
             ></b-form-input>
           </b-form-group>
-          <b-form-group id="picture">
-            <div v-if="isShow">
-              <b-img-lazy class="my-5" v-bind="mainProps" :src="picture" alt="沒找到場域圖(或沒有圖片)"></b-img-lazy>
-            </div>
-            <div v-else>
-              <strong style="text-align:left;">請先選擇活動..</strong>
-              <b-spinner variant="primary" type="grow" label="Text Centered"></b-spinner>
-            </div>
-          </b-form-group>
+
           <b-form-group
             id="input-group-4"
             label-cols-sm="2"
@@ -129,23 +88,6 @@
               placeholder="請輸入票數"
               required
             ></b-form-input>
-          </b-form-group>
-          <b-form-group
-            label-cols-lg="7"
-            label="如果搶票失敗是否由前到後繼續搶票："
-            label-size="xm"
-            label-align-sm="left"
-          >
-            <b></b>
-            <b-form-checkbox
-              v-model="form.fail_retry"
-              size="lg"
-              label-checkbox-sm="left"
-              name="fail_retry"
-              switch
-            >
-              <b>{{form.fail_retry}}</b>
-            </b-form-checkbox>
           </b-form-group>
           <div v-if="disable">
             <b-form-input id="input-n" v-model="form.session_index" disabled="false"></b-form-input>
@@ -180,8 +122,7 @@ export default {
         session_index: "",
         activate_URL: "",
         ticket_areaPrice: "",
-        ticket_number: "",
-        fail_retry: true
+        ticket_number: ""
       },
       mainProps: {
         center: true,
@@ -236,7 +177,6 @@ export default {
       this.form.ticket_session = null;
       this.form.ticket_areaPrice = "";
       this.form.ticket_number = "";
-      this.form.fail_retry = true;
       this.show = false;
       this.$nextTick(() => {
         this.show = true;

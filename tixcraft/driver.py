@@ -11,3 +11,17 @@ def login(driver):
     )
     cookies = driver.get_cookies()
     return cookies
+
+
+def user_verify(driver, url):
+    driver.get(url)
+    url = driver.current_url
+    while "ticket/verify" in url:
+        try:
+            url = driver.current_url
+            WebDriverWait(driver, 2).until(EC.alert_is_present())
+            alert = driver.switch_to_alert()
+            alert.accept()
+        except:
+            pass
+    return url

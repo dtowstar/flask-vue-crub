@@ -166,30 +166,4 @@ def runTicketP(iurl, isessionIndex, iprice, iTN):
 
     # In[54]:
 
-    '''from selenium import webdriver
-    from selenium.webdriver.support.ui import Select
-    import time
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.support.wait import WebDriverWait
-    from selenium.webdriver.common.keys import Keys
-    from bs4 import BeautifulSoup
-    import requests
-    import re
-    import random
-
-    driver = webdriver.Chrome()
-    driver.maximize_window()
-    driver.implicitly_wait(20)
-    url = 'https://tixcraft.com/login'
-    driver.get(url)
-    element = WebDriverWait(driver, 600).until(
-        EC.visibility_of_element_located((By.XPATH, "//*[@class='user-name']")))
-    securl = 'https://tixcraft.com/activity/detail/19_BSB'
-    driver.get(securl)
-    '''
-
-
-runTicketP('https://tixcraft.com/activity/detail/19_911', '0', '3800', 1)
-
 # In[ ]:

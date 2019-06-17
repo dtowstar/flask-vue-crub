@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, render_template, json, Response
 from flask_cors import CORS
 from selenium import webdriver
 import time
-#from openhome import open
 from get_img import save_img
 from newTicket import runTicketP
 from tixcraft.core import TixCraft
@@ -18,17 +17,6 @@ CORS(app)
 @app.route('/')
 def index():
     return render_template('index.html')
-
-
-# @app.route('/confirmPage', methods=('GET', 'POST'))
-# def login():
-    #openhome = request.json.get('homepage')
-    # print(openhome)
-    # if request.method == 'POST':
-    # open(openhome)
-    # return jsonify(openhome)
-    # else:
-    # return jsonify(openhome)
 
 
 @app.route('/getActivatyName_URL', methods=('GET', 'POST'))
@@ -71,13 +59,7 @@ def runProgram():
     gTAName = ret_dict['ticket_areaName']
     gTR = ret_dict['ticket_rule']
     gSorR = ret_dict['SorR']
-    print(gAURL)
-    print(gTPrice)
-    print(gTN)
-    print(gSI)
-    print(gTAName)
-    print(gTR)
-    print(gSorR)
+
     sTR = ""
     if(gTR == True):
         sTR = "HIGHEST_PRICE"
